@@ -3,9 +3,7 @@ package org.example.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 //@Controller : 자바 빈으로 등록됨
 @Controller
@@ -14,10 +12,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class HomeController {
 //    @GetMapping : GET 메소드로 "/"에 접근시 home() 실행
     @GetMapping("/")
-    public String home(Model model) {
-//        키와 VALUE 쌍으로 MODEL에 저장
-//        request scope에 저장되며, 뷰에서 사용 가능
-        model.addAttribute("name", "홍길동");
+    public String home() {
+        log.info("===============> HomeController/");
         return "index";
     }
 }

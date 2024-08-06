@@ -5,8 +5,13 @@ import lombok.extern.log4j.Log4j;
 import org.example.ex03.dto.SampleDTO;
 import org.example.ex03.dto.SampleDTOList;
 import org.example.ex03.dto.TodoDTO;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,5 +94,66 @@ public class SampleController {
         log.info("page:" + page);
 
         return "sample/ex04";
+    }
+//    http://localhost:8080/sample/ex05
+//    return 값이 void일 경우 요청 url을 기준으로 jsp 파일을 찾는다.
+//    /WEB-INF/views/sample/ex05.jsp 파일을 찾게 됨
+    @GetMapping("/ex05")
+    public void ex05(){
+        log.info("/ex05..........");
+    }
+    //    http://localhost:8080/sample/ex06
+//    해당 경로 접근시 http://localhost:8080/sample/ex06-2?name=AAA&age=10로 리다이렉트함
+    @GetMapping("/ex06")
+    public String ex06(RedirectAttributes ra) {
+        log.info("/ex06...........");
+//        리다이렉트 시 요청 파라미터로 name과 age를 추가해준다
+        ra.addAttribute("name","AAA");
+        ra.addAttribute("age",10);
+//      리다이렉트 시 "redirect:" 접두사를 사용한다
+        return "redirect:/sample/ex06-2";
+    }
+    //    http://localhost:8080/sample/ex07
+//    @ResponseBody 어노테이션은 반환된 객체가 JSON 형식으로 변환되어 보여지도록 한다
+    @GetMapping("/ex07")
+    public @ResponseBody SampleDTO ex07(){
+        log.info("/ex07...........");
+
+        SampleDTO dto = new SampleDTO();
+        dto.setName("홍길동");
+        dto.setAge(10);
+
+        return dto;
+    }
+    //    http://localhost:8080/sample/ex08
+//    ResponseEntity = json 형태의 body + 응답 헤더
+    @GetMapping("/ex08")
+    public ResponseEntity<String> ex08() {
+        log.info("/ex08...........");
+
+        String msg = "{\"name\":\"홍길동\"}"; //body에 들어갈 json 형태의 문자열
+
+        HttpHeaders header = new HttpHeaders();
+//        HttpHeaders 객체 생성 후 Content-Type 헤더 설정
+        header.add("Content-Type", "application/json;charset=utf-8");
+
+//        ResponseEntity 객체 내에 바디, 헤더, 상태코드(200)반환
+        return new ResponseEntity<>(msg, header, HttpStatus.OK);
+    }
+    //    http://localhost:8080/sample/exUpload
+    @GetMapping("/exUpload")
+    public void exUpload(){
+        log.info("/exUpload..........");
+    }
+    //    http://localhost:8080/sample/exUploadPost
+//    MultipartFile 하나가 업로드한 파일 하나에 대응한다
+    @PostMapping("/exUploadPost")
+    public void exUploadPost(ArrayList<MultipartFile> files){
+
+        for(MultipartFile file : files){
+            log.info("----------------------------");
+            log.info("name:" + file.getOriginalFilename()); //파일의 원래 이름 출력
+            log.info("size:" + file.getSize()); //파일의 크기 출력
+        }
     }
 }
