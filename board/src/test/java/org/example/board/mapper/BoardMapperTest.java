@@ -22,6 +22,7 @@ public class BoardMapperTest {
     @Test
     @DisplayName("BoardMapper 의 목록 불러오기")
     public void getList() {
+//        모든 BoardVO 리스트를 가져와서 각 객체를 출력한다
         for(BoardVO board : mapper.getList()) {
             log.info(board);
         }
