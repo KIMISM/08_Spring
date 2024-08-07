@@ -26,4 +26,11 @@ public class BoardMapperTest {
             log.info(board);
         }
     }
+    @Test
+    @DisplayName("BoardMapper의 게시글 읽기")
+    public void get() {
+        BoardVO board = mapper.get(1L);
+
+        log.info(board);
+    }
 }
