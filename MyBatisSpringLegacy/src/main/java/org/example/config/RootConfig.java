@@ -17,7 +17,7 @@ import javax.sql.DataSource;
 
 //@Configuration : 설정
 @Configuration
-@MapperScan(basePackages = {"org.example.mapper"}) //mapper의 위치 알려주기
+//@MapperScan(basePackages = {"org.example.mapper"}) //mapper의 위치 알려주기
 // 어떤 경로에서 property를 가져올지 설정(classpath를 붙여줘야 프로젝트의 루트로 접근)
 //그냥 /를 사용하면 weapp 폴더가 루트가 된다.
 @PropertySource({"classpath:/application.properties"})
