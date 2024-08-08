@@ -11,6 +11,7 @@
     <setting name="mapUnderscoreToCamelCase" value="true"/>
 </settings>
     <typeAliases>
+<!--        이 패키지 내의 모든 클래스에 대해 별칭을 생성한디. 해당 부분 생략-->
         <package name="org.example.board.domain"/>
     </typeAliases>
 </configuration>

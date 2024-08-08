@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -17,6 +18,7 @@ import javax.sql.DataSource;
 
 //@Configuration : 설정
 @Configuration
+@ComponentScan(basePackages={"org.example.board.service"}) // service는 웹과 무관
 @MapperScan(basePackages = {"org.example.board.mapper"}) //mapper의 위치 알려주기
 // 어떤 경로에서 property를 가져올지 설정(classpath를 붙여줘야 프로젝트의 루트로 접근)
 //그냥 /를 사용하면 weapp 폴더가 루트가 된다.
