@@ -67,4 +67,43 @@ class BoardcontrollerTest {
 //            redirect:/board/list
             log.info(resultPage);
         }
+        @Test
+        public void get() throws Exception {
+//param 부분에 해당 주소 값을 받아올때 필요한 파라미터 값을 넘겨준다
+        log.info(
+                mockMvc.perform(MockMvcRequestBuilders.get("/board/get").param("no","1"))
+                        .andReturn()
+                        .getModelAndView()
+                        .getModelMap()
+                );
+        }
+        @Test
+    public void update() throws Exception {
+
+        String resultPage = mockMvc.perform(
+                MockMvcRequestBuilders.post("/board/update")
+                        .param("no","11")
+                        .param("title","수정된 테스트 새글 제목")
+                        .param("content","수정된 테스트 새글 제목")
+                        .param("title","수정된 테스트 새글 내용")
+                        .param("writer","user00"))
+                .andReturn()
+                .getModelAndView()
+                .getViewName();
+
+                log.info(resultPage);
+        }
+        @Test
+    public void delete() throws Exception {
+//        삭제전
+        String resultPage = mockMvc.perform(
+                MockMvcRequestBuilders
+                        .post("/board/delete")
+                        .param("no","25"))
+                .andReturn()
+                .getModelAndView()
+                .getViewName();
+
+        log.info(resultPage);
+        }
     }

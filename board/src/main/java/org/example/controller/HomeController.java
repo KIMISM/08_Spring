@@ -13,7 +13,9 @@ public class HomeController {
 //    @GetMapping : GET 메소드로 "/"에 접근시 home() 실행
     @GetMapping("/")
     public String home() {
-        log.info("===============> HomeController/");
-        return "index";
+//        log.info("===============> HomeController/");
+//        return "index";
+
+        return "redirect:/board/list";
     }
 }
