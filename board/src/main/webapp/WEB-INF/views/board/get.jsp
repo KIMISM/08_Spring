@@ -19,7 +19,17 @@
 <div class="mt-4">
     <a href="list" class="btn btn-primary"><i class="fas fa-list"></i>목록</a>
     <a href="update?no=${board.no}" class="btn btn-primary"><i class="fas fa-edit"></i>수정</a>
-    <a href="delete?no=${board.no}" class="btn btn-primary"><i class="fas fa-trash-alt"></i>삭제</a>
+    <a href="#" class="btn btn-primary delete"><i class="fas fa-trash-alt"></i>삭제</a>
 </div>
-<%@include file="../layouts/header.jsp"%>
+
+<%--눈에 보이지는 않지만 post 메소드를 호출하는 용도로 사용된다.--%>
+<form action="delete" method="post" id="deleteForm">
+    <input type="hidden" name="no" value="${board.no}"/>
+</form>
+
+<%--삭제 버튼과 form을 연결시켜주는 역할--%>
+<script src="/resources/js/board.js"></script>
+
+
+<%@include file="../layouts/footer.jsp"%>
 

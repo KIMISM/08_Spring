@@ -1,5 +1,6 @@
 package org.example.board.service;
 
+import org.example.board.domain.BoardAttachmentVO;
 import org.example.board.dto.BoardDTO;
 
 import java.util.List;
@@ -15,4 +16,8 @@ public interface BoardService {
     public boolean update(BoardDTO board);
 
     public boolean delete(Long no);
+
+    public BoardAttachmentVO getAttachment(Long no);
+
+    public boolean deleteAttachment(Long no);
 }

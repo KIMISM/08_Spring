@@ -16,3 +16,16 @@ VALUES
     ('테스트 제목 4', '테스트 내용 4', 'user00'),
     ('테스트 제목 5', '테스트 내용 5', 'user00');
 SELECT * FROM tbl_board;
+
+DROP TABLE IF EXISTS tbl_board_attachment;
+
+CREATE TABLE tbl_board_attachment(
+    no INTEGER AUTO_INCREMENT PRIMARY KEY,
+    filename VARCHAR(256) NOT NULL,
+    path VARCHAR(256) NOT NULL,
+    content_type VARCHAR(56),
+    size INTEGER,
+    bno INTEGER NOT NULL,
+    reg_date DATETIME DEFAULT now(),
+    CONSTRAINT FOREIGN KEY(bno) REFERENCES tbl_board (no)
+    );

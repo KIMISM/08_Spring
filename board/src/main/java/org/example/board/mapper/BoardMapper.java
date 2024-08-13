@@ -1,5 +1,6 @@
 package org.example.board.mapper;
 
+import org.example.board.domain.BoardAttachmentVO;
 import org.example.board.domain.BoardVO;
 
 import java.util.List;
@@ -21,4 +22,17 @@ public interface BoardMapper {
 
 //    해당 no 값을 가진 게시글을 삭제
     public int delete(Long no);
+
+//    첨부파일 생성
+    public void createAttachment(BoardAttachmentVO attach);
+
+//    해당 게시글 번호에 존재하는 첨부파일 목록 조회
+    public List<BoardAttachmentVO> getAttachmentList(Long bno);
+
+//    첨부파일 번호로 해당 파일 조회
+    public BoardAttachmentVO getAttachment(Long no);
+
+//    첨부파일 번호로 해당 파일 삭제
+    public int deleteAttachment(Long no);
+
 }
