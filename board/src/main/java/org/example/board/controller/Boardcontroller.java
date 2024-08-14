@@ -1,16 +1,17 @@
 package org.example.board.controller;
 
-
+import java.io.File;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import org.example.board.domain.BoardAttachmentVO;
 import org.example.board.dto.BoardDTO;
 import org.example.board.service.BoardService;
+import org.example.common.util.UploadFiles;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
 
 @Controller // controller 기능을 하는 빈 등록
 @Log4j
@@ -65,5 +66,15 @@ public class Boardcontroller {
         service.delete(no);
 //수정한 후 목록 페이지로 리다이렉트
         return "redirect:/board/list";
+    }
+    @GetMapping("/download/{no}")
+    @ResponseBody //view를 사용하지 않고 json으로 받아올때 주로 사용
+    public void download(@PathVariable("no") Long no, HttpServletResponse response) throws Exception {
+//받아온 번호에 해당하는 첨부 파일 가져오기
+        BoardAttachmentVO attach = service.getAttachment(no);
+
+        File file = new File(attach.getPath());
+//해당 부분에서 실제 파일 다운로드 작업
+        UploadFiles.download(response, file, attach.getFilename());
     }
 }
