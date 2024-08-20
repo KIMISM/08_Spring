@@ -1,6 +1,11 @@
 package org.example.controller;
 
 import lombok.extern.log4j.Log4j;
+import org.example.security.account.domain.CustomUser;
+import org.example.security.account.domain.MemberVO;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,10 +26,21 @@ public class SecurityController {
 //    public void doMember() {
 //        log.info("logined member");
 //    }
-    @GetMapping("/admin") //ADMIN 권한 필요
-    public void doAdmin() {
-        log.info("admin only");
+
+
+//    @GetMapping("/admin") //ADMIN 권한 필요
+//    public void doAdmin() {
+//        log.info("admin only");
+//    }
+
+//    커스텀한 User 정보 추출하는 방법(@AuthenticationPrincipal 사용)
+    @GetMapping("/admin")
+    public void doAdmin(@AuthenticationPrincipal CustomUser customUser) {
+        MemberVO member = customUser.getMember();
+        log.info("username = " + member);
     }
+
+
     @GetMapping("/login")
     public void login() {
         log.info("login page");
@@ -33,8 +49,17 @@ public class SecurityController {
     public void logout() {
         log.info("logout page");
     }
+//    name 추출하는 방법(Principal 사용)
+//    @GetMapping("/member")
+//    public void doMember(Principal principal){
+//        log.info("username = " + principal.getName());
+//    }
+
+//    UserDetails 추출하는 방법(Authentication 사용)
     @GetMapping("/member")
-    public void doMember(Principal principal){
-        log.info("username = " + principal.getName());
+    public void doMember(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        log.info("username = " + userDetails.getUsername());
     }
 }
