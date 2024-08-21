@@ -1,0 +1,104 @@
+package org.example.security.config;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CharacterEncodingFilter;
+import org.springframework.web.filter.CorsFilter;
+
+@Configuration
+@EnableWebSecurity //모든 페이지에서 자동으로 인증을 하도록 설정
+@Log4j
+@MapperScan(basePackages = {"org.example.security.account.mapper"})
+@ComponentScan(basePackages = {"org.example.security"})
+@RequiredArgsConstructor
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final UserDetailsService userDetailsService;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(); // PasswordEncoder의 구현체
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager() throws Exception {
+        return super.authenticationManager();
+    }
+
+//    cross origin 접근 허용
+//    다양한 도메인에서 서버에 요청을 보낼 수 있다
+    @Bean
+    public CorsFilter corsFilter() {
+//        cors 설정을 적용할 url 소스 생성ㅇ
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+//        cors 설정을 위한 객체 생성
+        CorsConfiguration config = new CorsConfiguration();
+//        자격 증명(쿠키, 인증 헤더 등)을 포함한 요청을 허용하도록 설정
+        config.setAllowCredentials(true);
+//        모든 도메인에서 오는 요청 허용(*은 모두라는 의미)
+        config.addAllowedOriginPattern("*");
+//        모든 헤더 허용
+        config.addAllowedHeader("*");
+//        모든 HTTP 메서드 허용(GET,POST,PUT,DELETE)
+        config.addAllowedMethod("*");
+//        설정된 cors 구성을 모든 경로("/**")에 적용(하위 경로 포함)
+        source.registerCorsConfiguration("/**", config);
+//        설정된 소스 기반으로 새로운 CorsFilter 반환
+        return new CorsFilter(source);
+    }
+
+//    특정 경로에 대한 보안 필터를 적용하지 않도록 설정
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+//        해당 경로들은 보안 검사 무시
+        web.ignoring().antMatchers("/assets/**","/*","/api/member/**");
+    }
+
+    public CharacterEncodingFilter encodingFilter(){
+        CharacterEncodingFilter encodingFilter = new CharacterEncodingFilter();
+//        UTF-8 인코딩을 설정한다
+        encodingFilter.setEncoding("UTF-8");
+//        강제로 UTF-8 인코딩을 적용하도록 설정
+        encodingFilter.setForceEncoding(true);
+        return encodingFilter;
+    }
+    @Override
+    public void configure(HttpSecurity http) throws Exception {
+        http.addFilterBefore(encodingFilter(), CsrfFilter.class);
+//        super.configure(http);
+
+        http.httpBasic().disable() //기본 HTTP 인증 비활성화
+            .csrf().disable() //CSRF 비활성화
+                .formLogin().disable() //formLogin 비활성화
+                // 세션 생성 모드 설정(stateless : 세션 사용 안하겠다.)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+    }
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        log.info("configure.....................................");
+
+//        메모리 정보 대신 UserDetailsService를 사용해서 인증 처리하도록 설정
+        auth
+                .userDetailsService(userDetailsService) //사용자 정보 로드
+                .passwordEncoder(passwordEncoder()); //비밀번호 암호화
+    }
+}

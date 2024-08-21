@@ -80,6 +80,11 @@ dependencies {
   implementation("org.springframework.security:spring-security-config:${springSecurityVersion}")
   implementation("org.springframework.security:spring-security-core:${springSecurityVersion}")
   implementation("org.springframework.security:spring-security-taglibs:${springSecurityVersion}") //jsp용이다
+
+  //jwt
+  implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+  runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+  implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
 }
 
 
