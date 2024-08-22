@@ -2,10 +2,17 @@ package org.example.security.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import org.example.security.filter.AuthenticationErrorFilter;
+import org.example.security.filter.JwtAuthenticationFilter;
+import org.example.security.filter.JwtUsernamePasswordAuthenticationFilter;
+import org.example.security.handler.CustomAccessDeniedHandler;
+import org.example.security.handler.CustomAuthenticationEntryPoint;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,6 +23,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -28,9 +36,17 @@ import org.springframework.web.filter.CorsFilter;
 @MapperScan(basePackages = {"org.example.security.account.mapper"})
 @ComponentScan(basePackages = {"org.example.security"})
 @RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
+
+    @Autowired
+    private JwtUsernamePasswordAuthenticationFilter jwtUsernamePasswordAuthenticationFilter;
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final AuthenticationErrorFilter authenticationErrorFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -65,6 +81,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new CorsFilter(source);
     }
 
+
 //    특정 경로에 대한 보안 필터를 적용하지 않도록 설정
     @Override
     public void configure(WebSecurity web) throws Exception {
@@ -82,16 +99,38 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.addFilterBefore(encodingFilter(), CsrfFilter.class);
+//        한글 인코딩 필터 설정
+        http.addFilterBefore(encodingFilter(), CsrfFilter.class)
 //        super.configure(http);
+//            Jst 인증 필터,기준 핉터는 사용자 필터는 사용 못한다
+               .addFilterBefore(authenticationErrorFilter,UsernamePasswordAuthenticationFilter.class)
+               .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+//                로그인 인증 필터 설정(jwtUsernamePasswordAuthenticationFilter -> UsernamePasswordAuthenticationFilter)
+            .addFilterBefore(jwtUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.httpBasic().disable() //기본 HTTP 인증 비활성화
             .csrf().disable() //CSRF 비활성화
                 .formLogin().disable() //formLogin 비활성화
                 // 세션 생성 모드 설정(stateless : 세션 사용 안하겠다.)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+//예외 처리 설정
+        http
+                .exceptionHandling()
+//                인증 실패시 처리할 객체
+                .authenticationEntryPoint(authenticationEntryPoint)
+//                접근 거부시 처리할 객체
+                .accessDeniedHandler(accessDeniedHandler);
+
+        http
+                .authorizeRequests() //경로별 접근 권한 설정
+                .antMatchers(HttpMethod.OPTIONS).permitAll() //모든 OPTIONS 요청 허용
+                .antMatchers("/api/security/all").permitAll() //해당 경로의 모든 요청 허용
+                .antMatchers("/api/security/member").access("hasRole('ROLE_MEMBER')") //해당 경로는 MEMBER 이상 권한을 가진 사용자만 접근 가능
+                .antMatchers("/api/security/admin").access("hasRole('ROLE_ADMIN')") //해당 경로는 ADMIN 이상 권한을 가진 사용자만 접근 가능
+                .anyRequest().authenticated(); //나머지 요청들은 인증된 사용자만 접근 가능
 
     }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         log.info("configure.....................................");

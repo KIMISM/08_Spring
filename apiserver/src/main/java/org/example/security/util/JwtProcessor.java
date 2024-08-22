@@ -14,8 +14,8 @@ import java.util.Date;
 
 @Component
 public class JwtProcessor {
-//    토큰 유효기간을 5분으로 설정
-    static private final long TOKEN_VALID_MILISECOND = 1000L*60*5;
+//    토큰 유효기간을 10분으로 설정
+    static private final long TOKEN_VALID_MILISECOND = 1000L*60*10;
 
 //    비밀 키 설정 개발시에는 서버 재기동하는 경우가 많으므로 임의의 문자열
 //    이정도로 길게 할것ㅋㅋ
